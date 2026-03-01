@@ -20,7 +20,7 @@ const AdminSidebar = () => {
     return (
         <div className='bg-white rounded-2xl shadow-sm p-4 w-64'>
             <div className='mb-4 p-2 border-b'>
-                <h2 className='text-lg font-semibold'>Dashtar</h2>
+                <h2 className='text-lg font-semibold'>Dashboard</h2>
             </div>
             <div className='flex flex-col gap-2'>
                 {navItems.map((item) => (

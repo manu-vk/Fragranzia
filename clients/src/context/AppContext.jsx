@@ -2,10 +2,14 @@ import { createContext, useEffect, useState } from "react";
 import { customerFakeData, ourProducts } from "../assets/assets";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+
+axios.defaults.baseURL = import.meta.env.BACKEND_URL;
 
 export const AppContext = createContext(); // important
 
 export const AppContextProvider = ({ children }) => {
+
 
   const navigate = useNavigate();
   const [user, setUser] = useState(false)

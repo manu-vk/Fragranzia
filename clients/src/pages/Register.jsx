@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 const Register = () => {
 
   return (
-   <div className="min-h-screen flex justify-center px-4 py-10">
+    <div className="min-h-screen flex justify-center px-4 py-10">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white rounded-2xl overflow-hidden">
         <div className="hidden lg:block">
           <div className="h-full registerImgArea rounded-[10px_200px_10px_200px]">
