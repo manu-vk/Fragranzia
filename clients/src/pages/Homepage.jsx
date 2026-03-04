@@ -48,7 +48,7 @@ const Homepage = () => {
         <div className='flex justify-center'>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:gap-3 sm:p-3 md:gap-5 md:p-5 lg:gap-6 lg:p-6'>
             {featured.slice(1, 6).map(product => (
-              <FeaturedCard key={product.id} product={product} />
+              <FeaturedCard key={product._id} product={product} />
             ))}
           </div>
         </div>
@@ -75,7 +75,7 @@ const Homepage = () => {
         <div className='mt-23 flex justify-between items-center'>
           <h1 className='sm:text-[20px] md:text-[25px] lg:text-[35px] font-semibold'>Explore<span> Categories</span></h1>
 
-          <div classNamfe='flex gap-2'>
+          <div className='flex gap-2'>
             <p className='text-decoration-line: underline'>See All</p>
           </div>
         </div>
@@ -120,7 +120,7 @@ const Homepage = () => {
         <div className='flex justify-center'>
           <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:gap-3 sm:p-3 md:gap-5 md:p-5 lg:gap-6 lg:p-6'>
             {offerZone.slice(0, 5).map(product => (
-              <FeaturedCard key={product.id} product={product} />
+              <FeaturedCard key={product._id} product={product} />
             ))}
           </div>
         </div>

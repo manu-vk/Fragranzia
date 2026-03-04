@@ -4,7 +4,7 @@ import { AppContext } from '../../context/AppContext';
 const AdminProducts = () => {
 
     //addProduct, updateProducts, deleteProduct work not completed
-    const { products, addProduct, updateProduct, deleteProduct } = useContext(AppContext);
+    const { products, addProduct, updateProduct, deleteProduct, API_PRODUCT } = useContext(AppContext);
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [formData, setFormData] = useState({
@@ -15,7 +15,9 @@ const AdminProducts = () => {
         brand: '',
         rating: '',
         ratingCount: '',
-        image: ['', '', '']
+        image: ['', '', ''],
+        description: '',
+        stock: ''
     });
 
     const categories = ['Eau De Parfum', 'Concentrated', 'Deodorants', 'Body Mist', 'Combo'];
@@ -38,23 +40,23 @@ const AdminProducts = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         const productData = {
             ...formData,
-            id: editingProduct ? editingProduct.id : `p${Date.now()}`,
             price: Number(formData.price),
             offerPrice: Number(formData.offerPrice),
             rating: Number(formData.rating),
-            ratingCount: Number(formData.ratingCount)
+            ratingCount: Number(formData.ratingCount),
+            stock: Number(formData.stock)
         };
 
         if (editingProduct) {
-            updateProduct(productData);
+            await updateProduct(editingProduct._id, productData);
         } else {
-            addProduct(productData);
+            await addProduct(productData);
         }
-
         handleReset();
     };
 
@@ -69,15 +71,14 @@ const AdminProducts = () => {
             rating: product.rating,
             ratingCount: product.ratingCount,
             stock: product.stock,
-            image: [...product.image]
+            description: product.description || '',
+            // image: [...product.image]
         });
         setShowAddForm(true);
     };
 
     const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            deleteProduct(id);
-        }
+        deleteProduct(id);
     };
 
     const handleReset = () => {
@@ -89,7 +90,9 @@ const AdminProducts = () => {
             brand: '',
             rating: '',
             ratingCount: '',
-            image: ['', '', '']
+            image: ['', '', ''],
+            description: '',
+            stock: ''
         });
         setEditingProduct(null);
         setShowAddForm(false);
@@ -120,7 +123,7 @@ const AdminProducts = () => {
                         <h2 className="text-xl font-semibold">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
                         <button onClick={handleReset} className="text-gray-500 hover:text-gray-700">✕</button>
                     </div>
-                    
+
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
@@ -131,6 +134,18 @@ const AdminProducts = () => {
                                 <label className="block text-sm font-medium mb-1">Brand *</label>
                                 <input id="brand" value={formData.brand} onChange={handleInputChange} type="text" placeholder="Brand name" className="w-full p-2 border rounded" required />
                             </div>
+                        </div>
+
+                        <div className="col-span-2">
+                            <label className="block text-sm font-medium mb-1">Description</label>
+                            <textarea
+                                id="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                placeholder="Product description"
+                                className="w-full p-2 border rounded"
+                                rows="4"
+                            />
                         </div>
 
                         <div>
@@ -173,12 +188,12 @@ const AdminProducts = () => {
                                 {[0, 1, 2].map((idx) => (
                                     <div key={idx} className="border-2 border-dashed rounded p-2">
                                         <label className="cursor-pointer block">
-                                            <input type="file" accept="image/*" onChange={(e) => handleImageChange(idx, e)} className="hidden" />
+                                            {/* <input type="file" accept="image/*" onChange={(e) => handleImageChange(idx, e)} className="hidden" />
                                             {formData.image[idx] ? (
                                                 <img src={formData.image[idx]} alt={`Preview ${idx}`} className="w-full h-24 object-cover rounded" />
                                             ) : (
                                                 <div className="w-full h-24 flex items-center justify-center text-gray-400">Click to upload</div>
-                                            )}
+                                            )} */}
                                         </label>
                                     </div>
                                 ))}
@@ -196,13 +211,14 @@ const AdminProducts = () => {
             )}
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="grid grid-cols-8 bg-gray-50 p-3 border-b font-medium">
+                <div className="grid grid-cols-9 bg-gray-50 p-3 border-b font-medium">
                     <div>Image</div>
                     <div className="col-span-2">Product</div>
                     <div>Category</div>
                     <div>Price</div>
-                    <div>Offer Price</div>
+                    <div>Offer</div>
                     <div>Stock</div>
+                    <div className="col-span-1">Description</div>
                     <div>Actions</div>
                 </div>
 
@@ -218,10 +234,10 @@ const AdminProducts = () => {
                 ) : (
                     <div>
                         {products.map((product) => (
-                            <div key={product.id} className="grid grid-cols-8 items-center p-3 border-b hover:bg-gray-50">
-                                <div>
+                            <div key={product._id} className="grid grid-cols-9 items-center p-3 border-b hover:bg-gray-50">
+                                {/* <div>
                                     <img src={product.image[0]} alt={product.title} className="w-12 h-12 object-cover rounded" />
-                                </div>
+                                </div> */}
                                 <div className="col-span-2">
                                     <p className="font-medium truncate">{product.title}</p>
                                     <p className="text-sm text-gray-500">{product.brand}</p>
@@ -230,11 +246,12 @@ const AdminProducts = () => {
                                 <div>₹{product.price}</div>
                                 <div>₹{product.offerPrice}</div>
                                 <div>{product.stock || 'N/A'}</div>
+                                <div className="col-span-1 text-sm truncate pr-2">{product.description || 'No description'}</div>
                                 <div className="flex gap-2">
                                     <button onClick={() => handleEdit(product)} className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded text-sm hover:bg-yellow-200">
                                         Edit
                                     </button>
-                                    <button onClick={() => handleDelete(product.id)} className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200">
+                                    <button onClick={() => handleDelete(product._id)} className="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200">
                                         Delete
                                     </button>
                                 </div>

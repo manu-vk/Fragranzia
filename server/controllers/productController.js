@@ -7,36 +7,31 @@
 
 const productModel = require("../model/productModel")
 
-const getProduct = (req, res) => {
-    const product = productModel.find()
-    res.status(200).json(product);
+const getProduct = async (req, res) => {
+    const products = await productModel.find();
+    res.json(products); 
+};
+
+const addProduct = async (req, res) => {
+    const product = await productModel.create(req.body);
+    res.status(201).json(product);
 }
 
-const getProductById = (req, res) => {
+const deleteProduct = async (req, res) => {
+    await productModel.findByIdAndDelete(req.params.id);
+    res.json({ message: "Product Deleted" })
+}
+
+const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const product = productModel.findById(id);
-    if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-    }
-    res.status(200).json(product);
-}
 
-const createProduct = (req, res) => {
-    const { title, description, price, offerPrice, category, stock, rating, ratingCount, image } = req.body;
-    const newProduct = new productModel({
-        title,
-        description,
-        price,
-        offerPrice,
-        category,
-        stock,
-        rating,
-        ratingCount,
-        image
-    });
-    newProduct.save()
-        .then(product => res.status(201).json(product))
-        .catch(err => res.status(400).json({ message: "Error creating product", error: err }));
-}
+    const updatedProduct = await productModel.findByIdAndUpdate(
+        id,
+        req.body,
+        { new: true }
+    );
 
-module.exports = { getProduct, getProductById, createProduct }
+    res.json(updatedProduct);
+};
+
+module.exports = { getProduct, addProduct, deleteProduct, updateProduct }

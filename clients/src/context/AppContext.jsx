@@ -4,10 +4,9 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
-axios.defaults.baseURL = import.meta.env.BACKEND_URL;
-
 export const AppContext = createContext(); // important
 
+const API_PRODUCT = 'http://localhost:3000/api/product';
 export const AppContextProvider = ({ children }) => {
 
 
@@ -21,9 +20,16 @@ export const AppContextProvider = ({ children }) => {
   const [wishItems, setWishItems] = useState({});
   const [allUsers, setAllUsers] = useState([])
 
+
+  const fetchProduct = async () => {
+    const res = await axios.get(API_PRODUCT);
+    setProducts(res.data)
+    setSearchQuery(res.data)
+  }
+
   useEffect(() => {
-    setProducts(ourProducts);
-    setSearchQuery(ourProducts);
+    // setProducts(ourProducts);
+    // setSearchQuery(ourProducts);
     setAllUsers(customerFakeData)
   }, []);
 
@@ -66,7 +72,7 @@ export const AppContextProvider = ({ children }) => {
   const getCartAmount = () => {
     let totalAmount = 0;
     for (const items in cartItems) {
-      let itemInfo = products.find((product) => product.id === items);
+      let itemInfo = products.find((product) => product._id === items);
       if (cartItems[items] > 0) {
         totalAmount += itemInfo.offerPrice * cartItems[items]
       }
@@ -98,12 +104,46 @@ export const AppContextProvider = ({ children }) => {
 
   }
 
+  const addProduct = async (productData) => {
+    try {
+      const res = await axios.post(API_PRODUCT, productData);
+      await fetchProduct();
+      toast.success("Product Added Successfully");
+    } catch (error) {
+      toast.error("Failed to add product");
+    }
+  };
+
+  const updateProduct = async (id, productData) => {
+    try {
+      await axios.put(`${API_PRODUCT}/${id}`, productData);
+      await fetchProduct();
+      toast.success("Product Updated");
+    } catch (error) {
+      toast.error("Update Failed");
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    try {
+      await axios.delete(`${API_PRODUCT}/${id}`);
+      fetchProduct();
+      toast.success("Product deleted Successfully")
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchProduct();
+  }, [])
+
   return (
     <AppContext.Provider
       value={{
         products, navigate, user, setUser, admin, setAdmin, showUserLogin, setShowUserLogin, searchQuery, setSearchQuery,
         cartItems, addToCart, updateCartItem, removeCartItem, getCartCount, getCartAmount, forgotPass, addToWish, wishItems, setWishItems,
-        allUsers
+        allUsers, addProduct, updateProduct, deleteProduct, API_PRODUCT
       }}>
       {children}
     </AppContext.Provider>
