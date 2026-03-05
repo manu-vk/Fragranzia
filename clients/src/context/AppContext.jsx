@@ -6,19 +6,19 @@ import axios from 'axios';
 
 export const AppContext = createContext(); // important
 
-const API_PRODUCT = 'http://localhost:3000/api/product';
+const API_PRODUCT = 'http://localhost:3000/api/product'; //temporary
 export const AppContextProvider = ({ children }) => {
 
 
   const navigate = useNavigate();
-  const [user, setUser] = useState(false)
-  const [admin, setAdmin] = useState(true)
+  const [user, setUser] = useState(false) //login relate
+  const [admin, setAdmin] = useState(true) //admin auth relate
   const [showUserLogin, setShowUserLogin] = useState(false)
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState({});
   const [cartItems, setCartItems] = useState({});
   const [wishItems, setWishItems] = useState({});
-  const [allUsers, setAllUsers] = useState([])
+  const [allUsers, setAllUsers] = useState([]) //all users not completed
 
 
   const fetchProduct = async () => {
