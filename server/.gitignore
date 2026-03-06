@@ -12,6 +12,7 @@ dist
 dist-ssr
 .excalidraw
 *.local
+.env
 
 # Editor directories and files
 .vscode/*
