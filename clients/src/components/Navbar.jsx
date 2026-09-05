@@ -2,23 +2,20 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { assets } from '../assets/assets'
 import { AppContext } from '../context/AppContext'
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
 
-    const { navigate, user, setUser, admin, setAdmin, setShowUserLogin, searchQuery, setSearchQuery, getCartCount } = useContext(AppContext);
+    const { navigate, user, setUser, admin, setAdmin, setShowUserLogin, searchQuery, setSearchQuery, getCartCount, getWishlistCount } = useContext(AppContext);
     const [open, setOpen] = useState(false)
     const [profile, setProfile] = useState(false)
-    const logout = async () => {
-        setUser(null);
-        setAdmin(null)
-        navigate('/')
-    }
 
-    // useEffect(() => {
-    //     if (searchQuery.length > 0) {
-    //         navigate('?products')
-    //     }
-    // }, [searchQuery])
+    const logout = () => {
+        localStorage.removeItem("token");
+        setUser(null);
+        setAdmin(null);
+        navigate('/');
+    }
 
     return (
         <nav className="z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
@@ -46,7 +43,16 @@ const Navbar = () => {
                 <div className='flex gap-2'>
                     <div className="relative cursor-pointer">
                         <div className='flex rounded-full shadow-[0_0_3px_#24242453] w-[30px] h-[30px] justify-center items-center'>
-                            <Link to='/cart'>
+                            <Link
+                                to={user ? '/cart' : '#'}
+                                onClick={(e) => {
+                                    if (!user) {
+                                        e.preventDefault();
+                                        toast.error('Please login to continue');
+                                        setTimeout(() => navigate('/login'), 1000);
+                                    }
+                                }}
+                            >
                                 <img src={assets.cartIcon} alt="" className='w-4.5 h-4.5' />
                             </Link>
                         </div>
@@ -56,50 +62,101 @@ const Navbar = () => {
                             </span>
                         )}
                     </div>
-                    <div className='flex rounded-full shadow-[0_0_3px_#24242453] w-[30px] h-[30px] justify-center items-center cursor-pointer'>
+                    {/* <div className='flex rounded-full shadow-[0_0_3px_#24242453] w-[30px] h-[30px] justify-center items-center cursor-pointer'>
                         <Link to='/wishlist'>
                             <img src={assets.wishFalseIcon} alt="" className='w-5 h-5' />
                         </Link>
-                    </div>
-                    <div className="relative">
-                        <div onClick={() => setProfile(!profile)} className="flex w-[30px] h-[30px] items-center justify-center rounded-full shadow-[0_0_3px_#24242453] cursor-pointer">
-                            <img src={assets.profileIcon} className="w-5 h-5" />
+                    </div> */}
+                    <div className="relative cursor-pointer">
+
+                        <div className='flex rounded-full shadow-[0_0_3px_#24242453] w-[30px] h-[30px] justify-center items-center'>
+
+                            <Link
+                                to={user ? '/wishlist' : '#'}
+                                onClick={(e) => {
+                                    if (!user) {
+                                        e.preventDefault();
+                                        toast.error('Please login to continue');
+                                        setTimeout(() => navigate('/login'), 1000);
+                                    }
+                                }}
+                            >
+                                <img
+                                    src={assets.wishFalseIcon}
+                                    alt=""
+                                    className='w-5 h-5'
+                                />
+                            </Link>
+
                         </div>
+
+                        {getWishlistCount() > 0 && (
+
+                            <span className="absolute -top-2 -right-1 text-[10px] text-white bg-[#00354B] w-[16px] h-[16px] flex items-center justify-center rounded-full">
+
+                                {getWishlistCount()}
+
+                            </span>
+
+                        )}
+
+                    </div>
+
+                    <div className="relative">
+
+                        <Link
+                            to={user ? '/profile' : '#'}
+                            onClick={(e) => {
+                                if (!user) {
+                                    e.preventDefault();
+                                    toast.error('Please login to continue');
+                                    setTimeout(() => navigate('/login'), 1000);
+                                }
+                            }}
+                            className="flex w-[30px] h-[30px] items-center justify-center rounded-full shadow-[0_0_3px_#24242453] cursor-pointer"
+                        >
+                            <img src={assets.profileIcon} className="w-5 h-5" />
+                        </Link>
                         {profile && (
-                            <div className="absolute right-0 top-9 w-36 bg-white shadow-lg text-sm z-50">
-                                {!user ? (
-                                    <>
-                                        <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
-                                        <Link to="/register" className="block px-4 py-2 hover:bg-gray-100 text-red-500">Logout</Link>
-                                    </>
-                                ) : (
-                                    <Link to="/login" onClick={() => setShowUserLogin(true)} className="block px-4 py-2 hover:bg-gray-100 text-red-500">Login</Link>
-                                )}
+                            <div onClick={() => setProfile(!profile)} className="flex w-[30px] h-[30px] items-center justify-center rounded-full shadow-[0_0_3px_#24242453] cursor-pointer">
+                                <img src={assets.profileIcon} className="w-5 h-5" />
                             </div>
                         )}
+
                     </div>
-                    {/* <div className='flex rounded-full shadow-[0_0_3px_#24242453] w-[30px] h-[30px] justify-center items-center cursor-pointer'>
-                        {
-                            !admin ? (
-                                null
-                            ) : <Link to='/admin-dashboard'>
-                                <img src={assets.adminIcon} alt="" className='w-5 h-5' />
+
+
+                    {user?.isAdmin && (
+
+                        <div className='flex rounded-full shadow-[0_0_3px_#24242453] w-[30px] h-[30px] justify-center items-center cursor-pointer'>
+
+                            <Link to='/admin-dashboard'>
+
+                                <img
+                                    src={assets.adminIcon}
+                                    alt=""
+                                    className='w-5 h-5'
+                                />
+
                             </Link>
-                        }
-                    </div> */}
-                    {!admin ? (
-                        null
-                    ) : <div className='flex rounded-full shadow-[0_0_3px_#24242453] w-[30px] h-[30px] justify-center items-center cursor-pointer'>
-                        <Link to='/admin-dashboard'>
-                                <img src={assets.adminIcon} alt="" className='w-5 h-5' />
-                            </Link>
-                    </div>
-                    }
+
+                        </div>
+
+
+                    )}
                 </div>
+                {!user && (
+                    <button
+                        onClick={() => navigate("/login")}
+                        className="px-5 py-2 bg-[#00354B] text-white rounded-full hover:opacity-90 rounded-full"
+                    >
+                        Login
+                    </button>
+                )}
             </div>
 
             <button onClick={() => open ? setOpen(false) : setOpen(true)} aria-label="Menu" className="sm:hidden">
-                {/* Menu Icon SVG */}
+                
                 <svg width="21" height="15" viewBox="0 0 21 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="21" height="1.5" rx=".75" fill="#426287" />
                     <rect x="8" y="6" width="13" height="1.5" rx=".75" fill="#426287" />

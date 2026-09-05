@@ -1,8 +1,34 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import { assets } from '../assets/assets'
 import { Link } from 'react-router-dom'
+import { AppContext } from '../context/AppContext'
 
 const Register = () => {
+
+  const { adduser, testuser } = useContext(AppContext);
+
+  // const[formData,setFormdata]=useState({
+  //   name:'',
+  //   email:'',
+  //   password:''
+  // })
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handlesubmit = async (e) => {
+    e.preventDefault();
+    const userData = {
+      name: name,
+      email: email,
+      password: password
+    }
+    await adduser(userData);
+    setName('');
+    setEmail('');
+    setPassword('')
+  }
+
 
   return (
     <div className="min-h-screen flex justify-center px-4 py-10">
@@ -31,30 +57,33 @@ const Register = () => {
             <span className="mx-4">Or sign in with email</span>
             <div className="flex-1 border-b border-gray-400" />
           </div>
+          {/* onSubmit={handlesubmit} */}
+          <form onSubmit={handlesubmit}>
+            <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
+              <img src={assets.authUserIcon} alt="" className="w-6 h-6" />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your username" className="bg-transparent outline-none w-full" />
+            </div>
+            <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
+              <img src={assets.authEmailIcon} alt="" className="w-6 h-6" />
+              <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your E - Mail" className="bg-transparent outline-none w-full" />
+            </div>
+            <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
+              <img src={assets.authLockIcon} alt="" className="w-6 h-6" />
+              <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="bg-transparent outline-none w-full" />
+            </div>
+            {/* <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
+              <img src={assets.authLockIcon} alt="" className="w-6 h-6" />
+              <input type="text" placeholder="Confirm your password" className="bg-transparent outline-none w-full" />
+            </div> */}
 
-          <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
-            <img src={assets.authUserIcon} alt="" className="w-6 h-6" />
-            <input type="text" placeholder="Enter your username" className="bg-transparent outline-none w-full" />
-          </div>
-          <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
-            <img src={assets.authEmailIcon} alt="" className="w-6 h-6" />
-            <input type="text" placeholder="Enter your E - Mail" className="bg-transparent outline-none w-full" />
-          </div>
-          <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
-            <img src={assets.authLockIcon} alt="" className="w-6 h-6" />
-            <input type="text" placeholder="Enter your password" className="bg-transparent outline-none w-full" />
-          </div>
-          <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
-            <img src={assets.authLockIcon} alt="" className="w-6 h-6" />
-            <input type="text" placeholder="Confirm your password" className="bg-transparent outline-none w-full" />
-          </div>
 
-          <div className='flex items-center gap-2'>
-            <input type="checkbox" className='w-4 h-4 accent-primary' />
-            <p>Agree with Terms & Conditions</p>
-          </div>
+            <div className='flex items-center gap-2'>
+              <input type="checkbox" className='w-4 h-4 accent-primary' />
+              <p>Agree with Terms & Conditions</p>
+            </div>
 
-          <button className="bg-primary text-white py-4 rounded text-lg font-medium hover:opacity-90 transition cursor-pointer">Sign Up</button>
+            <button type='submit' className="bg-primary text-white w-full py-4 rounded text-lg font-medium hover:opacity-90 transition cursor-pointer">Sign Up</button>
+          </form>
 
           <p className="text-center text-base mt-6">Already have an account?<Link to="/login" className="font-semibold cursor-pointer ml-1">
             Sign In

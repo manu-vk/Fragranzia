@@ -1,47 +1,190 @@
-// ProfilePage.jsx - Remove ProfileLayouts import and usage
-import React, { useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
+import { AppContext } from '../../context/AppContext'
 import { assets } from '../../assets/assets'
+import toast from 'react-hot-toast'
+import { FiEye, FiEyeOff } from 'react-icons/fi'
 
 const ProfilePage = () => {
-  const [name, setName] = useState('Adil');
-  const [isEditing, setIsEditing] = useState(false);
+  const { user, fetchProfile } = useContext(AppContext)
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+  const [isEditing, setIsEditing] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
-  const handleNameChange = (e) => {
-    setName(e.target.value);
-  };
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    dob: '',
+    gender: '',
+  })
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        dob: user.dob || '',
+        gender: user.gender || '',
+      })
+    }
+  }, [user])
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSave = async () => {
+    try {
+      // Save logic here - update user profile via API
+      toast.success('Profile updated successfully!')
+      setIsEditing(false)
+    } catch (error) {
+      toast.error('Failed to update profile')
+    }
+  }
+
+  if (!user) return <p className='p-6'>Loading profile...</p>
 
   return (
-    <div className='rounded-2xl w-full p-10 shadow-[0_0_0_1px_#2424243c]'>
-      <div className='flex gap-7 w-full'>
-        <div className='shadow-[0_0_0_1px_#2424243c] rounded-full w-20 h-20 flex justify-center items-center'>
-          <input type="file" />
-        </div>
+    <div className="w-full bg-white rounded-xl p-6 shadow-sm">
 
-        <div className='flex items-center gap-3 rounded-full w-full h-10'>
-          <div className='flex items-center justify-center shadow-[0_0_0_1px_#2424243c] rounded-full w-10 h-full'>
-            <h1>A</h1>
-          </div>
-          <div className='flex justify-start items-center p-3 shadow-[0_0_0_1px_#2424243c] rounded-2xl w-full h-full'>
-            {isEditing ? (
-              <input type="text" value={name} onChange={handleNameChange} className="w-full outline-none bg-transparent" autoFocus onBlur={() => setIsEditing(false)} />
-            ) : (
-              <h2>{name}</h2>
-            )}
-          </div>
-          <div className='flex justify-start items-center'>
-            <img src={assets.editIcon} alt="" className='w-7 h-7 cursor-pointer' onClick={handleEditClick} />
-          </div>
-        </div>
+      {/* Breadcrumb */}
+      <p className="text-sm text-gray-500 mb-6">
+        Home &gt; <span className="text-black font-medium">Profile</span>
+      </p>
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-8">
+        <button className="bg-[#083344] text-white px-10 py-3 rounded-md font-medium">
+          Profile
+        </button>
+
       </div>
 
-      <div className='flex flex-col justify-start mt-7 p-3 shadow-[0_0_0_1px_#2424243c] rounded-2xl w-full h-fit'>
-        <p>Kerala, Malappuram, Areekode</p>
-        <p>+91 99887 76655</p>
-        <p>673639</p>
+      {/* User Info Header */}
+      <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+        <p className="text-sm text-gray-600">Logged in as: <span className="font-semibold text-gray-800">{user.email}</span></p>
+      </div>
+
+      {/* Form */}
+      <div className="grid grid-cols-3 gap-6">
+
+        {/* Full Name */}
+        <div>
+          <label className="text-sm font-medium mb-2 block">
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            disabled={!isEditing}
+            className="w-full bg-gray-100 rounded-md px-4 py-3 outline-none disabled:cursor-not-allowed"
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="text-sm font-medium mb-2 block">
+            Email
+          </label>
+
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            disabled
+            className="w-full bg-gray-100 rounded-md px-4 py-3 outline-none cursor-not-allowed"
+          />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="text-sm font-medium mb-2 block">
+            Phone Number
+          </label>
+
+          <input
+            type="text"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            disabled={!isEditing}
+            className="w-full bg-gray-100 rounded-md px-4 py-3 outline-none disabled:cursor-not-allowed"
+          />
+        </div>
+
+        {/* DOB */}
+        <div>
+          <label className="text-sm font-medium mb-2 block">
+            Date of Birth
+          </label>
+
+          <input
+            type="date"
+            name="dob"
+            value={formData.dob}
+            onChange={handleChange}
+            disabled={!isEditing}
+            className="w-full bg-gray-100 rounded-md px-4 py-3 outline-none disabled:cursor-not-allowed"
+          />
+        </div>
+
+        {/* Gender */}
+        <div>
+          <label className="text-sm font-medium mb-2 block">
+            Gender
+          </label>
+
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            disabled={!isEditing}
+            className="w-full bg-gray-100 rounded-md px-4 py-3 outline-none disabled:cursor-not-allowed"
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        
+      </div>
+
+      {/* Edit/Save Button */}
+      <div className="flex justify-end gap-3 mt-8">
+        {isEditing && (
+          <button
+            onClick={() => setIsEditing(false)}
+            className="border border-gray-300 text-gray-700 px-8 py-2 rounded-md font-medium hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          onClick={() => {
+            if (isEditing) {
+              handleSave()
+            } else {
+              setIsEditing(true)
+            }
+          }}
+          className="border border-[#083344] text-[#083344] px-8 py-2 rounded-md font-medium hover:bg-[#083344] hover:text-white transition"
+        >
+          {isEditing ? 'Save Changes' : 'Edit Profile'}
+        </button>
       </div>
     </div>
   )

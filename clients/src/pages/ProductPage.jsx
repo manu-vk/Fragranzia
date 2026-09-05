@@ -8,6 +8,8 @@ const ProductPage = () => {
 
   const { products, searchQuery } = useContext(AppContext)
   const [filteredProducts, setFilteredProducts] = useState([])
+  const [showFilter, setShowFilter] = useState(false);
+
 
   useEffect(() => {
     if (typeof searchQuery === 'string' && searchQuery.trim().length > 0) {
@@ -55,15 +57,21 @@ const ProductPage = () => {
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <p className="hidden sm:block">Sort By:</p>
 
-              <ul className="flex flex-wrap gap-3 cursor-pointer">
+              <ul
+                className={`${showFilter ? "flex" : "hidden"
+                  } md:flex flex-col md:flex-row gap-3 cursor-pointer absolute md:static top-12 right-0 bg-white md:bg-transparent border md:border-0 p-3 md:p-0 rounded-lg shadow md:shadow-none z-10`}
+              >
                 <li>Relevance</li>
                 <li>Newest</li>
                 <li>Popularity</li>
-                <li className="hidden md:block" onClick={sortLowToHigh}>Price--Low to High</li>
-                <li className="hidden md:block" onClick={sortHighToLow}>Price--High to Low</li>
+                <li onClick={sortLowToHigh}>Price - Low to High</li>
+                <li onClick={sortHighToLow}>Price - High to Low</li>
               </ul>
 
-              <button className="flex items-center gap-2 border rounded-full px-3 py-1">
+              <button
+                onClick={() => setShowFilter(!showFilter)}
+                className="flex items-center gap-2 border rounded-full px-3 py-1"
+              >
                 Filter
                 <img src={assets.filterIcon} alt="" className="w-4 h-4" />
               </button>
@@ -74,7 +82,7 @@ const ProductPage = () => {
 
 
         <div className='flex justify-center'>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:gap-3 sm:p-3 md:gap-5 md:p-5 lg:gap-6 lg:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:gap-5 sm:p-3 md:gap-7 md:p-5 lg:gap-10 lg:p-6">
             {filteredProducts.map(product => (
               <ProductCard key={product._id} product={product} />
             ))}

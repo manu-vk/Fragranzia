@@ -3,12 +3,12 @@ import { Outlet } from 'react-router-dom'
 import ProfileSideBar from '../components/profileComponents/ProfileSideBar'
 
 export default function ProfileLayouts() {
-    return (
-        <div className='flex min-h-screen p-6'>
-            <ProfileSideBar />
-            <div className='w-10/12'>
-                <Outlet />
-            </div>
-        </div>
-    )
+  return (
+    <div className="flex gap-6">
+      <ProfileSideBar />
+      <div className="flex-1">
+        <Outlet />
+      </div>
+    </div>
+  )
 }

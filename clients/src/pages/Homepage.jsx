@@ -5,13 +5,17 @@ import FastService from '../components/FastService.jsx'
 import { assets } from '../assets/assets.js'
 import FeaturedCard from '../components/FeaturedCard.jsx'
 import { AppContext } from '../context/AppContext.jsx'
+import { AuthContext } from '../context/authcontext.jsx'
+import { useNavigate } from 'react-router-dom'
+
 
 const Homepage = () => {
 
+  const { token } = useContext(AuthContext)
   const { products } = useContext(AppContext)
   const [featured, setFeatured] = useState([])
   const [offerZone, setOfferZone] = useState([])
-
+  const navigate = useNavigate();
   useEffect(() => {
     setFeatured(products)
 
@@ -21,6 +25,12 @@ const Homepage = () => {
     setOfferZone(offerbase)
 
   }, [products])
+
+  // useEffect(() => {
+  //   if (!token) {
+  //     navigate("/login");
+  //   }
+  // }, [token]);
 
 
   return (

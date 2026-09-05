@@ -1,9 +1,12 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation,useNavigate } from 'react-router-dom'
 import React from 'react'
 import { assets } from '../../assets/assets'
+import axios from 'axios';
 
 const ProfileSideBar = () => {
     const location = useLocation()
+     const navigate = useNavigate()
+     
     const navItems = [
         { path: '/profile', label: 'Profile', icon: assets.profileIcon },
         { path: '/address', label: 'Address', icon: assets.addressIcon },
@@ -12,9 +15,38 @@ const ProfileSideBar = () => {
         { path: '/', label: 'Home', icon: assets.homeIcon }
     ]
 
-    const handleLogout = () => {
-        console.log('Logging out...')
+    // const handleLogout = () => {
+    //     console.log('Logging out...')
+    //       localStorage.removeItem('token')
+    //     localStorage.removeItem('user')
+
+    //     // redirect to login page
+    //     navigate('/login')
+    // }
+    const handleLogout = async () => {
+    try {
+        const user = JSON.parse(
+            localStorage.getItem("user")
+        );
+
+        if (user?._id) {
+            await axios.post(
+                "http://localhost:5000/api/user/logout",
+                {
+                    userId: user._id
+                }
+            );
+        }
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        navigate("/login");
+
+    } catch (error) {
+        console.log(error);
     }
+};
 
     const isProfileActive = (path) => {
         return location.pathname === path || (path === '/profile' && location.pathname.startsWith('/profile'))

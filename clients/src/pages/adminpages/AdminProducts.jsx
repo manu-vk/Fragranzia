@@ -1,10 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
+import { useEffect } from 'react';
 
 const AdminProducts = () => {
 
     //addProduct, updateProducts, deleteProduct work not completed
-    const { products, addProduct, updateProduct, deleteProduct, API_PRODUCT } = useContext(AppContext);
+    const { products, addProduct, updateProduct, deleteProduct, API_PRODUCT, productCount, categories } = useContext(AppContext);
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [formData, setFormData] = useState({
@@ -20,7 +21,7 @@ const AdminProducts = () => {
         stock: ''
     });
 
-    const categories = ['Eau De Parfum', 'Concentrated', 'Deodorants', 'Body Mist', 'Combo'];
+    // const categories = ['Eau De Parfum', 'Concentrated', 'Deodorants', 'Body Mist', 'Combo'];
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
@@ -28,37 +29,52 @@ const AdminProducts = () => {
     };
 
     const handleImageChange = (index, e) => {
-        const files = e.target.files;
-        if (files && files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const newImages = [...formData.image];
-                newImages[index] = e.target.result;
-                setFormData(prev => ({ ...prev, image: newImages }));
-            };
-            reader.readAsDataURL(files[0]);
-        }
-    };
+    const file = e.target.files[0];
+
+    if (file) {
+        const newImages = [...formData.image];
+        newImages[index] = file;
+
+        const preview = URL.createObjectURL(file);
+
+        setFormData(prev => ({
+            ...prev,
+            image: newImages,
+            [`preview${index}`]: preview
+        }));
+    }
+};
+
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
 
-        const productData = {
-            ...formData,
-            price: Number(formData.price),
-            offerPrice: Number(formData.offerPrice),
-            rating: Number(formData.rating),
-            ratingCount: Number(formData.ratingCount),
-            stock: Number(formData.stock)
-        };
+        const data = new FormData();
+
+        data.append("title", formData.title);
+        data.append("brand", formData.brand);
+        data.append("category", formData.category);
+        data.append("price", formData.price);
+        data.append("offerPrice", formData.offerPrice);
+        data.append("stock", formData.stock);
+        data.append("description", formData.description);
+        data.append("rating", formData.rating);
+        data.append("ratingCount", formData.ratingCount);
+
+        formData.image.forEach(img => {
+            if (img) data.append("image", img)
+        });
 
         if (editingProduct) {
-            await updateProduct(editingProduct._id, productData);
+            await updateProduct(editingProduct._id, data);
+            handleReset();
         } else {
-            await addProduct(productData);
+            await addProduct(data);
+            handleReset();
         }
-        handleReset();
-    };
+
+    }
 
     const handleEdit = (product) => {
         setEditingProduct(product);
@@ -97,6 +113,10 @@ const AdminProducts = () => {
         setEditingProduct(null);
         setShowAddForm(false);
     };
+
+    useEffect(() => {
+        console.log("products count", productCount);
+    }, [productCount])
 
     return (
         <div className="min-h-screen bg-gray-50 p-4">
@@ -152,7 +172,12 @@ const AdminProducts = () => {
                             <label className="block text-sm font-medium mb-1">Category *</label>
                             <select id="category" value={formData.category} onChange={handleInputChange} className="w-full p-2 border rounded" required>
                                 <option value="">Select category</option>
-                                {categories.map((cat, idx) => <option key={idx} value={cat.toLowerCase()}>{cat}</option>)}
+                                {/* {categories?.map((cat, idx) => <option key={idx} value={cat.toLowerCase()}>{cat}</option>)} */}
+                                {categories?.map((cat) => (
+                                    <option key={cat._id} value={cat._id}>
+                                        {cat.categoryname}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
@@ -188,12 +213,12 @@ const AdminProducts = () => {
                                 {[0, 1, 2].map((idx) => (
                                     <div key={idx} className="border-2 border-dashed rounded p-2">
                                         <label className="cursor-pointer block">
-                                            {/* <input type="file" accept="image/*" onChange={(e) => handleImageChange(idx, e)} className="hidden" />
+                                            <input type="file" accept="image/*" onChange={(e) => handleImageChange(idx, e)} className="hidden" />
                                             {formData.image[idx] ? (
                                                 <img src={formData.image[idx]} alt={`Preview ${idx}`} className="w-full h-24 object-cover rounded" />
                                             ) : (
                                                 <div className="w-full h-24 flex items-center justify-center text-gray-400">Click to upload</div>
-                                            )} */}
+                                            )}
                                         </label>
                                     </div>
                                 ))}
@@ -235,14 +260,15 @@ const AdminProducts = () => {
                     <div>
                         {products.map((product) => (
                             <div key={product._id} className="grid grid-cols-9 items-center p-3 border-b hover:bg-gray-50">
-                                {/* <div>
-                                    <img src={product.image[0]} alt={product.title} className="w-12 h-12 object-cover rounded" />
-                                </div> */}
+                                {/* image area is issued 💡: db issue */}
+                                <div>
+                                    <img src={`http://localhost:5000/uploads/${product.image?.[0]}`} alt={product.title} className="w-12 h-12 object-cover rounded" />
+                                </div>
                                 <div className="col-span-2">
                                     <p className="font-medium truncate">{product.title}</p>
                                     <p className="text-sm text-gray-500">{product.brand}</p>
                                 </div>
-                                <div>{product.category}</div>
+                                <div>{product.category?.categoryname}</div>
                                 <div>₹{product.price}</div>
                                 <div>₹{product.offerPrice}</div>
                                 <div>{product.stock || 'N/A'}</div>

@@ -2,11 +2,17 @@ import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
 import { Link } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
+import { useState } from 'react'
+import { AuthContext } from '../context/authcontext'
+
 
 const Login = () => {
 
-  const { forgotPass } = useContext(AppContext)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  const { forgotPass } = useContext(AppContext)
+  const {loginUser}=useContext(AuthContext)
   return (
     <div className="min-h-dvh flex items-center justify-center px-4">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white rounded-2xl overflow-hidden">
@@ -38,17 +44,19 @@ const Login = () => {
 
           <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-5">
             <img src={assets.authUserIcon} alt="" className="w-6 h-6" />
-            <input type="text" placeholder="Enter your username" className="bg-transparent outline-none w-full" />
+            <input type="text" value={email}
+              onChange={(e) => setEmail(e.target.value)} placeholder="Enter your username" className="bg-transparent outline-none w-full" />
           </div>
 
           <div className="flex items-center gap-4 bg-[#D9D9D9] px-5 py-4 rounded mb-3">
             <img src={assets.authLockIcon} alt="" className="w-6 h-6" />
-            <input type="password" placeholder="Enter your password" className="bg-transparent outline-none w-full" />
+            <input type="password" value={password}
+            onChange={(e)=>setPassword(e.target.value)} placeholder="Enter your password" className="bg-transparent outline-none w-full" />
           </div>
 
           <div className="text-right text-sm mb-6 cursor-pointer" onClick={forgotPass}>Forgot password?</div>
 
-          <button className="bg-primary text-white py-4 rounded text-lg font-medium hover:opacity-90 transition cursor-pointer">Log In</button>
+          <button className="bg-primary text-white py-4 rounded text-lg font-medium hover:opacity-90 transition cursor-pointer" onClick={()=>loginUser(email,password)}>Log In</button>
 
           <p className="text-center text-base mt-6">Don’t have an account?<Link to="/register" className="font-semibold cursor-pointer ml-1">
             Sign Up

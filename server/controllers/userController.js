@@ -1,8 +1,134 @@
 const userModel = require("../model/userModel")
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-const getUsers = (req, res) => {
-    const users = userModel.find()
-    res.status(200).json(users);
-}
 
-module.exports = { getUsers }
+const addUser = async (req, res) => {
+
+    console.log(req.body, 'frontend dt');
+
+    try {
+        const { name, email, password } = req.body;
+
+        const userExist = await userModel.findOne({ email });
+        if (userExist) {
+            return res.status(400).json({ message: "User already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // console.log(hashedPassword, "hashedPassword");
+
+        const user = await userModel.create({
+            name,
+            email,
+            password: hashedPassword,
+        });
+
+        res.status(201).json({ message: "User registered successfully" });
+    } catch (error) {
+        console.error(error); // Print the actual error
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+};
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await userModel.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const ismatch = await bcrypt.compare(
+            password,
+            user.password
+        );
+
+        if (!ismatch) {
+            return res.status(400).json({
+                message: "Incorrect password"
+            });
+        }
+
+        await userModel.findByIdAndUpdate(user._id, {
+            isOnline: true,
+            lastSeen: null
+        });
+
+        const token = jwt.sign(
+            {
+                id: user._id,
+                isAdmin: user.isAdmin
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: "1y" }
+        );
+
+        res.status(200).json({
+            message: "Login successful",
+            token,
+            user
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+const getUsers = async (req, res) => {
+    console.log('frontend data');
+
+    try {
+        const users = await userModel.find().select("-password");
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getProfile = async (req, res) => {
+    try {
+        const user = await userModel
+            .findById(req.user.id)
+            .select("-password");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(user);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const logoutUser = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        await userModel.findByIdAndUpdate(userId, {
+            isOnline: false,
+            lastSeen: new Date(),
+        });
+
+        res.status(200).json({
+            message: "Logout successful"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+
+
+module.exports = { getUsers, addUser, loginUser, logoutUser, getProfile }

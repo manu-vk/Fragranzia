@@ -1,24 +1,26 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { assets } from '../../assets/assets'
 
 const AdminSidebar = () => {
     const location = useLocation()
+    const navigate = useNavigate()
     const navItems = [
         { path: '/admin-dashboard', label: 'Dashboard', icon: assets.dashboardIcon },
         { path: '/admin-products', label: 'Products', icon: assets.productsIcon },
         { path: '/admin-categories', label: 'Categories', icon: assets.categoriesIcon },
         { path: '/admin-customers', label: 'Customers', icon: assets.customersIcon },
-        { path: '/admin-orders', label: 'Orders', icon: assets.ordersIcon },
-        { path: '/', label: 'Home', icon: assets.homeIcon }
+        { path: '/admin-orders', label: 'Orders', icon: assets.ordersIcon }
     ]
 
     const handleLogout = () => {
-        console.log('Logging out...')
+        localStorage.removeItem("token");
+
+        navigate("/login");
     }
 
     return (
-        <div className='bg-white rounded-2xl shadow-sm p-4 w-64'>
+        <div className='bg-blue-100 rounded-2xl shadow-sm p-4 w-64'>
             <div className='mb-4 p-2 border-b'>
                 <h2 className='text-lg font-semibold'>Dashboard</h2>
             </div>

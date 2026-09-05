@@ -1,0 +1,449 @@
+import React, { useContext, useState, useEffect } from 'react'
+import { AppContext } from '../context/AppContext'
+import { Link } from 'react-router-dom'
+import { assets } from '../assets/assets'
+import toast from 'react-hot-toast'
+
+const CheckoutPage = () => {
+  const { cartItems, getCartCount, navigate, user, createOrder } = useContext(AppContext)
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    paymentMethod: 'cod'
+  })
+
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.name || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      }))
+    }
+  }, [user])
+
+  const cartArray = cartItems && cartItems.length > 0 ? cartItems : []
+  const totalPrice = cartArray.reduce((a, i) => a + ((i.price || 0) * (i.quantity || 0)), 0)
+  const totalOffer = cartArray.reduce((a, i) => a + (((i.offerPrice && i.offerPrice > 0) ? i.offerPrice : i.price || 0) * (i.quantity || 0)), 0)
+  const discount = totalPrice - totalOffer
+
+  if (cartArray.length === 0) {
+    return (
+      <div className="p-4 md:p-6 max-w-7xl mx-auto">
+        <div className="text-center py-20">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
+          <p className="text-gray-500 mb-4">Add items to proceed with checkout</p>
+          <Link to="/products" className="inline-block bg-[#00354B] text-white px-6 py-2 rounded">
+            Continue Shopping
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const validateForm = () => {
+    const { fullName, email, phone, address, city, state, zipCode } = formData
+    if (!fullName || !email || !phone || !address || !city || !state || !zipCode) {
+      toast.error('Please fill all fields')
+      return false
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Invalid email format')
+      return false
+    }
+    if (!/^\d{10}$/.test(phone.replace(/\D/g, ''))) {
+      toast.error('Phone number must be 10 digits')
+      return false
+    }
+    return true
+  }
+
+  const mapPaymentMethod = (method) => {
+    const methodMap = {
+      'card': 'Credit/Debit Card',
+      'upi': 'UPI',
+      'cod': 'Cash on Delivery',
+      'netbanking': 'Net Banking',
+      'googlepay': 'Google Pay'
+    }
+    return methodMap[method] || method
+  }
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayment = async (data) => {
+    try {
+      console.log("==== handlePayment 1");
+
+      const isScriptLoaded = await loadRazorpayScript();
+      if (!isScriptLoaded) {
+        alert(
+          "Failed to load Razorpay SDK. Please check your internet connection."
+        );
+        return;
+      }
+
+      console.log("==== handlePayment 2");
+
+
+      // Initialize Razorpay
+      const options = {
+        key: "rzp_test_T5RWyahkIYk5Ke", // Replace with Razorpay Key ID
+        amount: data.amount,
+        currency: "INR",
+        name: "Cart7",
+        description: "Purchase Description",
+        order_id: data.id,
+        handler: async function (response) {
+
+          const verifyRes = await axios.post('http://localhost:3000/order/payment/verify-payment', {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+
+          if (verifyRes.data.success) {
+            console.log("inside verifyRes.data.success");
+
+            //  navigate("/order-success");
+          } else {
+            alert("Payment Failed!");
+            console.log("elseeeeee");
+
+          }
+
+        },
+
+        // prefill: {
+        //   name: "John Doe",
+        //   email: "johndoe@example.com",
+        //   contact: "9999999999",
+        // },
+
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp1 = new window.Razorpay(options);
+      rzp1.open();
+    } catch (error) {
+      console.error("Payment Error:--------------", error);
+    }
+  };
+// --------------------------------------------------------
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validateForm()) return
+
+    try {
+      setLoading(true)
+
+      console.log("FULL CART ARRAY:");
+      console.log(JSON.stringify(cartArray, null, 2));
+      const orderItems = cartArray.map(item => ({
+        productId:
+          item.product?._id ||
+          item.productId ||
+          item._id ||
+          item.id,
+
+        name:
+          item.product?.title ||
+          item.title ||
+          "Product",
+
+        price:
+          item.product?.offerPrice ||
+          item.product?.price ||
+          item.offerPrice ||
+          item.price ||
+          0,
+
+        image:
+          item.product?.image?.[0] ||
+          item.image?.[0] ||
+          item.image ||
+          "",
+
+        quantity: item.quantity || 1
+      }));
+      console.log("ORDER ITEMS:", orderItems);
+
+      console.log(JSON.stringify(orderItems, null, 2));
+
+      const orderData = {
+        items: orderItems,
+        totalAmount: totalOffer,
+        paymentMethod: mapPaymentMethod(formData.paymentMethod),
+
+        phone: formData.phone,
+
+        address: `${formData.address},
+            ${formData.city},
+            ${formData.state},
+            ${formData.zipCode}`,
+
+        orderId: `ORD-${Date.now()}`
+      }
+      console.log("ORDER DATA:", orderData);
+
+      console.log("Final order data:", orderData);
+
+      const result = await createOrder(orderData)
+
+
+      console.log("result=======",result);
+      
+
+      if (result) {
+        if (result?.paymentMethod == "UPI") {
+
+          console.log("Razorpay Order =========  ", result);
+
+          handlePayment(result?.razorpayOrder);
+        } else {
+          console.log("COD Order =========  ", result);
+
+          toast.success('Order placed successfully!')
+        // Redirect to orders history after successful order
+        setTimeout(() => {
+          // navigate('/profile/orders-history')
+          navigate('/order-success')
+        }, 1500)
+      }
+    }
+    } catch (error) {
+      // toast.error('Failed to place order')
+      console.log(error," Failed to place order====");
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <h1 className="text-2xl md:text-3xl font-semibold mb-2">Checkout</h1>
+      <div className="flex gap-2 text-xs md:text-sm text-gray-500 mb-6">
+        <Link to="/">Home</Link>
+        <span>{'>'}</span>
+        <Link to="/cart">Cart</Link>
+        <span>{'>'}</span>
+        <span>Checkout</span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Checkout Form */}
+        <div className="lg:col-span-2">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Shipping Details */}
+            <div className="shadow-[0_0_3px_#24242453] rounded-lg p-6">
+              <h2 className="text-lg font-semibold mb-4">Shipping Details</h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  name="fullName"
+                  placeholder="Full Name"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  className="w-full border rounded px-3 py-2 focus:outline-none focus:border-[#00354B]"
+                  required
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full border rounded px-3 py-2 focus:outline-none focus:border-[#00354B]"
+                  required
+                />
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone Number"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full border rounded px-3 py-2 focus:outline-none focus:border-[#00354B]"
+                  required
+                />
+                <textarea
+                  name="address"
+                  placeholder="Address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="w-full border rounded px-3 py-2 focus:outline-none focus:border-[#00354B] h-20"
+                  required
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    name="city"
+                    placeholder="City"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 focus:outline-none focus:border-[#00354B]"
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="state"
+                    placeholder="State"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    className="w-full border rounded px-3 py-2 focus:outline-none focus:border-[#00354B]"
+                    required
+                  />
+                </div>
+                <input
+                  type="text"
+                  name="zipCode"
+                  placeholder="Zip Code"
+                  value={formData.zipCode}
+                  onChange={handleInputChange}
+                  className="w-full border rounded px-3 py-2 focus:outline-none focus:border-[#00354B]"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className="shadow-[0_0_3px_#24242453] rounded-lg p-6">
+              <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
+              <div className="space-y-3">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="card"
+                    checked={formData.paymentMethod === 'card'}
+                    onChange={handleInputChange}
+                    className="w-4 h-4"
+                  />
+                  <span className="ml-3">Credit/Debit Card</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="upi"
+                    checked={formData.paymentMethod === 'upi'}
+                    onChange={handleInputChange}
+                    className="w-4 h-4"
+                  />
+                  <span className="ml-3">UPI</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={formData.paymentMethod === 'cod'}
+                    onChange={handleInputChange}
+                    className="w-4 h-4"
+                  />
+                  <span className="ml-3">Cash on Delivery</span>
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Order Summary */}
+        <div>
+          <div className="shadow-[0_0_3px_#24242453] rounded-lg p-6 h-fit sticky top-4">
+            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+
+            {/* Items */}
+            <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+              {cartArray.map(item => (
+                <div key={item.id} className="flex justify-between text-sm">
+                  <span className="text-gray-600">{item.title} x {item.quantity}</span>
+                  <span className="font-semibold">₹{item.offerPrice * item.quantity}</span>
+                </div>
+              ))}
+            </div>
+
+            <hr className="my-4" />
+
+            {/* Totals */}
+            <div className="space-y-2 text-sm mb-4">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Subtotal ({getCartCount()} items)</span>
+                <span>₹{totalPrice}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Discount</span>
+                <span className="text-green-600">− ₹{discount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivery</span>
+                <span className="text-green-600">Free</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Tax</span>
+                <span>₹0</span>
+              </div>
+            </div>
+
+            <hr className="my-4" />
+
+            <div className="flex justify-between font-semibold text-base mb-4">
+              <span>Total</span>
+              <span>₹{totalOffer}</span>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-[#00354B] text-white py-3 rounded font-semibold hover:bg-opacity-90 disabled:opacity-50 transition"
+            >
+              {loading ? 'Processing...' : 'Place Order'}
+            </button>
+
+            <p className="text-xs text-gray-500 mt-4 text-center">
+              100% Safe & Secure. Money back guarantee.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default CheckoutPage
