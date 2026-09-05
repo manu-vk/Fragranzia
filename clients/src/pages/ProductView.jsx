@@ -14,18 +14,18 @@ const ProductView = () => {
   const [relatedProducts, setRelatedProducts] = useState([])
   const [thumbnail, setThumbnail] = useState(null)
 
-  
+
   const product = products.find(
     (item) => String(item._id) === String(id)
   )
 
- 
+
   const handleBuyNow = async () => {
     await addToCart(product._id);
     navigate("/checkout");
   };
 
-  
+
 
   const off = Math.round(
     ((product.price - product.offerPrice) / product.price) * 100
@@ -45,11 +45,11 @@ const ProductView = () => {
     }
   }, [products, product])
 
- useEffect(() => {
-  if (product) {
-    setThumbnail(product.image?.[0] || null)
-  }
-}, [product])
+  useEffect(() => {
+    if (product) {
+      setThumbnail(product.image?.[0] || null)
+    }
+  }, [product])
 
   return (
     <div className='m-5 py-5'>
@@ -74,7 +74,7 @@ const ProductView = () => {
               {product.image?.map((img, index) => (
                 <img
                   key={index}
-                  src={`http://localhost:5000/uploads/${img}`}
+                  src={img}
                   onClick={() => setThumbnail(img)}
                   className="w-20 h-20 border cursor-pointer"
                 />
@@ -83,7 +83,7 @@ const ProductView = () => {
 
             <div className="relative">
               <img
-                src={`http://localhost:5000/uploads/${thumbnail}`}
+                src={thumbnail}
                 className="w-[400px] h-[400px] object-cover border"
               />
 

@@ -26,11 +26,10 @@ const ProductCard = ({ product }) => {
         className="absolute top-5 right-5 z-20 bg-white p-2 rounded-full shadow cursor-pointer"
       >
         <FaHeart
-          className={`text-lg transition ${
-            isWishlisted
+          className={`text-lg transition ${isWishlisted
               ? "text-red-500"
               : "text-gray-300"
-          }`}
+            }`}
         />
       </button>
 
@@ -45,7 +44,7 @@ const ProductCard = ({ product }) => {
       >
 
         <img
-          src={`http://localhost:5000/uploads/${product?.image?.[0]}`}
+          src={product?.image?.[0]}
           alt={product.title}
           className="w-[160px] h-[160px] object-contain transition-transform duration-300 ease-linear group-hover:scale-110"
         />

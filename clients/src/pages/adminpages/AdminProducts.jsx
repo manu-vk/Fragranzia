@@ -29,21 +29,21 @@ const AdminProducts = () => {
     };
 
     const handleImageChange = (index, e) => {
-    const file = e.target.files[0];
+        const file = e.target.files[0];
 
-    if (file) {
-        const newImages = [...formData.image];
-        newImages[index] = file;
+        if (file) {
+            const newImages = [...formData.image];
+            newImages[index] = file;
 
-        const preview = URL.createObjectURL(file);
+            const preview = URL.createObjectURL(file);
 
-        setFormData(prev => ({
-            ...prev,
-            image: newImages,
-            [`preview${index}`]: preview
-        }));
-    }
-};
+            setFormData(prev => ({
+                ...prev,
+                image: newImages,
+                [`preview${index}`]: preview
+            }));
+        }
+    };
 
 
     const handleSubmit = async (e) => {
@@ -262,7 +262,11 @@ const AdminProducts = () => {
                             <div key={product._id} className="grid grid-cols-9 items-center p-3 border-b hover:bg-gray-50">
                                 {/* image area is issued 💡: db issue */}
                                 <div>
-                                    <img src={`http://localhost:5000/uploads/${product.image?.[0]}`} alt={product.title} className="w-12 h-12 object-cover rounded" />
+                                    <img
+                                        src={product.image?.[0]}
+                                        alt={product.title}
+                                        className="w-12 h-12 object-cover rounded"
+                                    />
                                 </div>
                                 <div className="col-span-2">
                                     <p className="font-medium truncate">{product.title}</p>

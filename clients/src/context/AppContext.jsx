@@ -227,12 +227,13 @@ export const AppContextProvider = ({ children }) => {
           }
         }
       );
-
+        console.log("WISHLIST RESPONSE:", res.data);
       setWishItems(res.data.wishlist);
 
     } catch (error) {
 
       console.log(error.response?.data);
+      console.log("WISHLIST ERROR:", error.response?.data);
 
     }
   };
@@ -254,11 +255,12 @@ export const AppContextProvider = ({ children }) => {
 
       toast.success(res.data.message);
 
-      fetchWishlist();
+       await  fetchWishlist();
 
     } catch (error) {
 
       console.log(error.response?.data);
+        console.log("WISHLIST ERROR:", error.response?.data);
 
     }
   };

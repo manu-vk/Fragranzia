@@ -63,15 +63,22 @@ const WishlistPage = () => {
 
                     {wishArray.map(item => (
                         <div
-                            key={item.id || Math.random()}
+                            key={item.id}
                             className="border rounded-xl p-4 hover:shadow-md transition-shadow bg-white"
                         >
                             <div className="relative mb-4">
                                 <img
-                                    src={`http://localhost:5000/uploads/${item.image?.[0]}`}
+                                    src={
+                                        item?.image?.[0]
+                                            ? item.image[0].startsWith("http")
+                                                ? item.image[0]
+                                                : `http://localhost:5000/uploads/${item.image[0]}`
+                                            : assets.placeholderImage
+                                    }
                                     alt={item.title}
                                     className="w-full h-40 object-cover rounded-lg"
                                 />
+
                                 <button
                                     onClick={() => handleRemoveFromWishlist(item.id)}
                                     className="absolute top-2 right-2 bg-white p-2 rounded-full shadow hover:bg-red-50"
@@ -89,6 +96,7 @@ const WishlistPage = () => {
                                     <span className="font-semibold">
                                         ₹{item.offerPrice}
                                     </span>
+
                                     <span className="text-sm text-gray-500 line-through">
                                         ₹{item.price}
                                     </span>
