@@ -6,11 +6,11 @@ import axios from 'axios';
 
 export const AppContext = createContext();
 
-const API_REGISTER = 'http://localhost:5000/api/user/register';
-const API_USER = 'http://localhost:5000/api/user';
-const API_CATEGORY = 'http://localhost:5000/api/category';
-const API_PRODUCT = 'http://localhost:5000/api/product';
-const API_ORDER = 'http://localhost:5000/api/order';
+const API_REGISTER = 'https://fragranzia-w7my.onrender.com/api/user/register';
+const API_USER = 'https://fragranzia-w7my.onrender.com/api/user';
+const API_CATEGORY = 'https://fragranzia-w7my.onrender.com/api/category';
+const API_PRODUCT = 'https://fragranzia-w7my.onrender.com/api/product';
+const API_ORDER = 'https://fragranzia-w7my.onrender.com/api/order';
 
 export const AppContextProvider = ({ children }) => {
 
@@ -34,7 +34,7 @@ export const AppContextProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await axios.get("http://localhost:5000/api/user/profile", {
+      const res = await axios.get("https://fragranzia-w7my.onrender.com/api/user/profile", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -87,7 +87,7 @@ export const AppContextProvider = ({ children }) => {
       }
 
       const res = await axios.post(
-        "http://localhost:5000/api/cart",
+        "https://fragranzia-w7my.onrender.com/api/cart",
         { productId, quantity: 1 },
         {
           headers: {
@@ -114,7 +114,7 @@ export const AppContextProvider = ({ children }) => {
         return;
       }
 
-      const res = await axios.get("http://localhost:5000/api/cart", {
+      const res = await axios.get("https://fragranzia-w7my.onrender.com/api/cart", {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -152,7 +152,7 @@ export const AppContextProvider = ({ children }) => {
         return;
       }
 
-      const res = await axios.put("http://localhost:5000/api/cart", {
+      const res = await axios.put("https://fragranzia-w7my.onrender.com/api/cart", {
         productId,
         quantity
       }, {
@@ -178,7 +178,7 @@ export const AppContextProvider = ({ children }) => {
         return;
       }
 
-      const res = await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
+      const res = await axios.delete(`https://fragranzia-w7my.onrender.com/api/cart/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -220,7 +220,7 @@ export const AppContextProvider = ({ children }) => {
       if (!token) return;
 
       const res = await axios.get(
-        "http://localhost:5000/api/wishlist",
+        "https://fragranzia-w7my.onrender.com/api/wishlist",
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -244,7 +244,7 @@ export const AppContextProvider = ({ children }) => {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        "http://localhost:5000/api/wishlist",
+        "https://fragranzia-w7my.onrender.com/api/wishlist",
         { productId },
         {
           headers: {

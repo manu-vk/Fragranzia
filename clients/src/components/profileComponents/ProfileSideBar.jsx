@@ -31,7 +31,7 @@ const ProfileSideBar = () => {
 
         if (user?._id) {
             await axios.post(
-                "http://localhost:5000/api/user/logout",
+                "https://fragranzia-w7my.onrender.com/api/user/logout",
                 {
                     userId: user._id
                 }

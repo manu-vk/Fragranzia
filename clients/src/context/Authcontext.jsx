@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext();
 
-const API_USER = "http://localhost:5000/api/user/login";
+const API_USER = "https://fragranzia-w7my.onrender.com/api/user/login";
 
 export const AuthProvider = ({ children }) => {
 

@@ -21,7 +21,7 @@ const AddressPage = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:5000/api/address", newAddress, {
+      await axios.post("https://fragranzia-w7my.onrender.com/api/address", newAddress, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -49,7 +49,7 @@ const AddressPage = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/address", {
+      const res = await axios.get("https://fragranzia-w7my.onrender.com/api/address", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -65,7 +65,7 @@ const AddressPage = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.put(`http://localhost:5000/api/address/default/${id}`, {}, {
+      await axios.put(`https://fragranzia-w7my.onrender.com/api/address/default/${id}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -81,7 +81,7 @@ const AddressPage = () => {
   try {
     const token = localStorage.getItem("token");
 
-    await axios.delete(`http://localhost:5000/api/address/${id}`, {
+    await axios.delete(`https://fragranzia-w7my.onrender.com/api/address/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }

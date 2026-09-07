@@ -4,24 +4,27 @@ const Wishlist = require("../model/wishlistModel");
 
 const getWishlist = async (req, res) => {
   try {
-
     const wishlist = await Wishlist.find({
       user: req.user.id
     }).populate("productId");
 
-    const formatted = wishlist.map((item) => ({
-      id: item.productId._id,
-      title: item.productId.title,
-      image: item.productId.image,
-      price: item.productId.price,
-      offerPrice: item.productId.offerPrice,
-    }));
+    const formatted = wishlist
+      .filter((item) => item.productId)
+      .map((item) => ({
+        id: item.productId._id,
+        title: item.productId.title,
+        image: item.productId.image,
+        price: item.productId.price,
+        offerPrice: item.productId.offerPrice,
+      }));
 
     res.status(200).json({
       wishlist: formatted
     });
 
   } catch (error) {
+    console.error("Get wishlist error:", error);
+
     res.status(500).json({
       message: error.message
     });

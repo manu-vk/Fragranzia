@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express")
 const cors = require("cors");
 const productRouter = require("./routes/productRouter");
@@ -10,7 +11,7 @@ const wishlistRouter = require("./routes/wishlistRouter");
 const orderRouter = require("./routes/orderRouter");
 
 
-require("dotenv").config();
+
 
 connectDb();
 
