@@ -5,7 +5,7 @@ import FastService from '../components/FastService.jsx'
 import { assets } from '../assets/assets.js'
 import FeaturedCard from '../components/FeaturedCard.jsx'
 import { AppContext } from '../context/AppContext.jsx'
-import { AuthContext } from "../context/AuthContext.jsx";
+import { AuthContext } from "../context/Authcontext.jsx";
 import { useNavigate } from 'react-router-dom'
 
 
