@@ -3,7 +3,7 @@ import { assets } from '../assets/assets'
 import { Link } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import { useState } from 'react'
-import { AuthContext } from '../context/authcontext'
+import { AuthContext } from '../context/Authcontext'
 
 
 const Login = () => {
