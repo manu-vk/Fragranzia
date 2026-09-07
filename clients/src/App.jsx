@@ -25,7 +25,7 @@ import AdminCategories from './pages/adminpages/AdminCategories'
 import AdminCustomers from './pages/adminpages/AdminCustomers'
 import AdminOrdersPage from './pages/adminpages/AdminOrdersPage'
 import UserProtect from "./components/protected-router/Userprotect.jsx";
-import DefaultProtect from './components/protected-router/defaultprotect'
+import DefaultProtect from "./components/protected-router/Defaultprotect.jsx";
 import AdminProtect from './components/protected-router/adminprotect'
 
 const App = () => {
