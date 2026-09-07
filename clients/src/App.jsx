@@ -26,7 +26,7 @@ import AdminCustomers from './pages/adminpages/AdminCustomers'
 import AdminOrdersPage from './pages/adminpages/AdminOrdersPage'
 import UserProtect from "./components/protected-router/Userprotect.jsx";
 import DefaultProtect from "./components/protected-router/Defaultprotect.jsx";
-import AdminProtect from './components/protected-router/adminprotect'
+import AdminProtect from "./components/protected-router/AdminProtect.jsx";
 
 const App = () => {
   return (
